@@ -86,10 +86,10 @@ LLM 생성/수정 → 결정론적 검증기 실행 → 실패 로그를 다시 
 ```
 
 **근거.**
-- Ollama 네이티브 자기수정 테스트 에이전트 참고 구현: [Ghost](https://github.com/tripathiji1312/ghost)(AST → 테스트 생성 → 서브프로세스 실행 → 실패 시 자기 패치; Python 대상이나 패턴은 C로 이식 가능).
+- 테스트 생성 + 커버리지 기반 자가치유(대표·활발): [qodo-cover / Cover-Agent](https://github.com/qodo-ai/qodo-cover)(⭐5.5k) — 테스트를 생성하고 실패/커버리지 미달 시 반복 수정. 자율형은 [OpenHands](https://github.com/OpenHands/OpenHands)(⭐79k)가 스스로 테스트·수정(샌드박스).
 - 자동 C 유닛테스트 생성: [SPARC (arXiv 2602.16671)](https://arxiv.org/pdf/2602.16671), 시드 케이스 유도 C 테스트 생성; [EmbC-Test: LLM+RAG로 임베디드 테스트 가속 (arXiv 2603.09497)](https://arxiv.org/html/2603.09497v1).
 - 에이전트 기반 펌웨어 검증·패치(퍼징/정적/런타임): [Securing LLM-Generated Embedded Firmware (arXiv 2509.09970)](https://arxiv.org/abs/2509.09970).
-- 로컬 루프 도구: [aider](https://aider.chat/)(`--test`로 테스트 통과까지 자동 수정 루프, 로컬 모델 지원), Ghost 패턴 자작.
+- 로컬 루프 도구: [aider](https://github.com/Aider-AI/aider)(`--test`로 테스트 통과까지 자동 수정 루프, 로컬 Ollama 모델 지원, ⭐47k), [cline](https://github.com/cline/cline)(⭐64k)/[continue](https://github.com/continuedev/continue)(⭐35k) IDE 에이전트.
 - 실행 검증기: 하드웨어 없는 시뮬 [Renode](https://renode.io/), [QEMU](https://www.qemu.org/); 호스트 테스트 [Unity/Ceedling](https://www.throwtheswitch.org/).
 
 **Apply when.** 호스트에서 컴파일·실행 가능한 로직 계층(상태기계, 파서, 계산). 시뮬로 대체 가능한 주변장치.
@@ -147,12 +147,37 @@ LLM 생성/수정 → 결정론적 검증기 실행 → 실패 로그를 다시 
 
 ---
 
+## 부록 — 도구 지표 실측 (GitHub API, 2026-07-02)
+
+> 스타는 성숙도가 아니라 채택·화제성의 시점 신호다. 트레이서빌리티 계열(StrictDoc/OpenFastTrace/Doorstop)은 **안전공학 니치라 스타가 낮지만 최근 커밋으로 활발**하다 — 저스타 = 비활성이 아니다.
+
+| 역할 | 도구 | ⭐스타 | 마지막 커밋 |
+|---|---|---:|:---:|
+| 테스트생성+자가치유 | qodo-cover (Cover-Agent) | 5,461 | 2026-04-05 |
+| 루프 드라이버(로컬) | aider | 46,911 | 2026-05-22 |
+| 루프 드라이버(IDE) | cline | 64,173 | 2026-07-01 |
+| 루프 드라이버(config) | continue | 34,624 | 2026-07-01 |
+| 온머신 에이전트 | goose (Block) | 50,528 | 2026-07-01 |
+| 자율 SWE | OpenHands | 78,982 | 2026-07-01 |
+| 버그수정(연구) | SWE-agent | 19,685 | 2026-07-01 |
+| 정적분석(검증기) | semgrep | 15,713 | 2026-07-01 |
+| 퍼징(검증기) | AFL++ | 6,629 | 2026-07-01 |
+| 임베디드 시뮬(검증기) | renode | 2,615 | 2026-07-01 |
+| 임베디드 C 유닛테스트 | Ceedling/Unity | 823 | 2026-07-01 |
+| 에이전트 메모리 | mem0 | 59,870 | 2026-07-01 |
+| 시계열 메모리 | graphiti | 28,225 | 2026-06-27 |
+| LLM eval/가드레일 | promptfoo | 22,820 | 2026-07-01 |
+| 코드리뷰(OSS·셀프호스팅) | PR-Agent | 11,917 | 2026-07-01 |
+| 코드베이스 위키 | deepwiki-open | 17,112 | 2026-06-03 |
+| 추적성(니치·활발) | StrictDoc / OpenFastTrace / Doorstop | 325 / 149 / 639 | 2026-07-01 |
+
 ## Sources (조사 시점 2026-07, 재확인 권장)
 
-**루프/자기수정**
-- Ghost (Ollama self-healing test agent) — https://github.com/tripathiji1312/ghost
-- Self-healing LLM Pipeline — https://github.com/ammarlodhi255/Self-healing-LLM-Pipeline
-- aider — https://aider.chat/
+**루프/자기수정 (⭐/커밋 실측 2026-07-02)**
+- qodo-cover / Cover-Agent (test-gen + coverage self-heal) — https://github.com/qodo-ai/qodo-cover (⭐5.5k)
+- aider (로컬모델 test-fix 루프) — https://github.com/Aider-AI/aider (⭐47k)
+- OpenHands (자율 SWE, 반복 테스트) — https://github.com/OpenHands/OpenHands (⭐79k)
+- cline — https://github.com/cline/cline (⭐64k) · continue — https://github.com/continuedev/continue (⭐35k)
 
 **임베디드 테스트/검증 연구**
 - Securing LLM-Generated Embedded Firmware (agent 검증·패치) — https://arxiv.org/abs/2509.09970
